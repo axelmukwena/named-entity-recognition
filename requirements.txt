@@ -30,7 +30,6 @@ pyasn1-modules==0.2.8
 pyparsing==2.4.7
 pytest==5.4.1
 PyYAML==5.3.1
-regex @ file:///tmp/build/80754af9/regex_1606772707535/work
 requests==2.25.1
 requests-oauthlib==1.3.0
 rsa==4.7
