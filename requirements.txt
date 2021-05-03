@@ -1,10 +1,8 @@
 absl-py==0.11.0
 attrs==20.3.0
-beautifulsoup4 @ file:///home/linux1/recipes/ci/beautifulsoup4_1610988766420/work
 cachetools==4.2.1
 certifi==2020.12.5
 chardet==4.0.0
-click @ file:///home/linux1/recipes/ci/click_1610990599742/work
 Flask==1.1.2
 future==0.18.2
 google-auth==1.24.0
@@ -14,7 +12,6 @@ idna==2.10
 importlib-metadata==3.4.0
 itsdangerous==1.1.0
 Jinja2==2.11.3
-joblib @ file:///tmp/build/80754af9/joblib_1607970656719/work
 lxml==4.6.2
 Markdown==3.3.3
 MarkupSafe==1.1.1
@@ -40,7 +37,6 @@ rsa==4.7
 scikit-learn==0.24.2
 scipy==1.4.1
 sklearn==0.0
-soupsieve @ file:///tmp/build/80754af9/soupsieve_1614023247537/work
 tensorboard==2.2.1
 tensorboard-plugin-wit==1.8.0
 threadpoolctl==2.1.0
