@@ -1,0 +1,37 @@
+<h1>NLP Project2 Webpage</h1>
+
+<form action="predict">
+    Sentence:<br>
+    <label>
+        <input size="150" type="text" name="name" value="">
+    </label>
+    <br><br>
+    <input type="submit" value="Submit">
+    <button formaction="test" type="submit">test</button>
+    <button formaction="show" type="submit">show</button>
+</form>
+
+
+{% if name %}
+    your input:{{ name }}
+    <br/>
+{% endif %}
+{% if text_pred %}
+{% autoescape false %}
+<span style="font-family: Courier New,serif;">
+{{ text_pred }}
+</span>
+{% endautoescape %}
+{% endif %}
+{% if text_test %}
+{% autoescape false %}
+{{ text_test }}
+{% endautoescape %}
+{% endif %}
+{% if text_show %}
+{% autoescape false %}
+<span style="font-family: Courier New,serif;">
+{{ text_show }}
+</span>
+{% endautoescape %}
+{% endif %}
