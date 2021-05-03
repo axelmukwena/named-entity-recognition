@@ -17,8 +17,7 @@ import re
 import nltk
 from tqdm import tqdm
 from nltk.tag.perceptron import PerceptronTagger
-
-tagger = PerceptronTagger()
+from names_dataset import NameDatasetV1
 
 
 class MEMM:
@@ -28,12 +27,15 @@ class MEMM:
         self.beta = 0
         self.max_iter = 0
         self.classifier = None
+        self.tagger = PerceptronTagger()
+        self.m = NameDatasetV1()
 
     def features(self, sentence, labels, fs, ls):
 
         """ Baseline Features """
         length = len(sentence)
-        for i in tqdm(range(length)):
+        poses = self.tagger.tag(sentence)
+        for i in range(length):
             features = {}
             current_word = sentence[i]
             features['has_(%s)' % current_word] = 1
@@ -41,9 +43,19 @@ class MEMM:
                 features['prev_label'] = "O"
             else:
                 features['prev_label'] = labels[i - 1]
-
             if bool(re.search('[A-Z]+[a-z]+$', current_word)):
                 features['first_uppercase'] = 1
+
+                pos = poses[i][1]
+                if pos == 'NNP':
+                    features['proper_noun'] = 1
+                    if i == 0 or i == length:
+                        features['first_last'] = 1
+                    if sentence[i + 1] == "'s":
+                        features['possession'] = 1
+
+                if self.m.search_first_name(current_word) or self.m.search_last_name(current_word):
+                    features['dataset'] = 1
 
             honorifics = ['Mr', 'Ms', 'Miss', 'Mrs', 'Mx', 'Master', 'Sir', 'Madam', 'Dame', 'Lord', 'Lady', 'Dr',
                           'Prof',
@@ -52,14 +64,6 @@ class MEMM:
                 previous_word = sentence[i - 1].replace('.', '')
                 if previous_word in honorifics:
                     features['honorific'] = 1
-
-            pos = tagger.tag(sentence)[i][1]
-            if pos == 'NNP':
-                features['proper_noun'] = 1
-                if i == 0 or i == length:
-                    features['first_last'] = 1
-                if sentence[i + 1] == "'s":
-                    features['possession'] = 1
 
             fs.append(features)
             ls.append(labels[i])
@@ -134,7 +138,7 @@ class MEMM:
     def show_samples(self, bound):
         """Show some sample probability distributions.
         """
-        words, labels = self.load_data(self.train_path)
+        words, labels = self.load_data(self.dev_path)
         sentences, labels_list = self.get_sentences(words, labels)
 
         features = []
@@ -164,3 +168,5 @@ class MEMM:
 
 # mem = MEMM()
 # mem.train()
+# mem.load_model()
+# mem.show_samples((0, 500))
