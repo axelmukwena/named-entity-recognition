@@ -37,6 +37,7 @@ class MEMM():
                 features['prev_label'] = labels[i - 1]
 
             pos = poses[i][1]
+            features['pos'] = pos
             if pos == 'NNP':
                 features['proper_noun'] = 1
 
@@ -66,7 +67,6 @@ class MEMM():
                 features['possession'] = 0
                 features['dataset'] = 0
                 features['foreign'] = 0
-
 
             honorifics = ['Mr', 'Ms', 'Miss', 'Mrs', 'Mx', 'Master', 'Sir', 'Madam', 'Dame', 'Lord', 'Lady', 'Dr',
                           'Prof', 'Br', 'Sr', 'Fr', 'Rev', 'Pr', 'Elder']
@@ -92,8 +92,8 @@ class MEMM():
             features = {}
             current_word = sentence[i]
             features['has_(%s)' % current_word] = 1
-
             pos = poses[i][1]
+            features['pos'] = pos
             if pos == 'NNP':
                 features['proper_noun'] = 1
 
@@ -123,7 +123,6 @@ class MEMM():
                 features['possession'] = 0
                 features['dataset'] = 0
                 features['foreign'] = 0
-
 
             honorifics = ['Mr', 'Ms', 'Miss', 'Mrs', 'Mx', 'Master', 'Sir', 'Madam', 'Dame', 'Lord', 'Lady', 'Dr',
                           'Prof', 'Br', 'Sr', 'Fr', 'Rev', 'Pr', 'Elder']
