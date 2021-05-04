@@ -7,6 +7,7 @@ import re
 from tqdm import tqdm
 from nltk.tag.perceptron import PerceptronTagger
 from names_dataset import NameDatasetV1
+import enchant
 
 
 class MEMM():
@@ -18,9 +19,12 @@ class MEMM():
         self.classifier = None
         self.tagger = PerceptronTagger()
         self.m = NameDatasetV1()
+        self.us = enchant.Dict("en_US")
+        self.au = enchant.Dict("en_AU")
+        self.ca = enchant.Dict("en_CA")
+        self.gb = enchant.Dict("en_GB")
 
     def features(self, sentence, labels, fs, ls):
-        """ Baseline Features """
         length = len(sentence)
         poses = self.tagger.tag(sentence)
         for i in range(length):
@@ -31,30 +35,53 @@ class MEMM():
                 features['prev_label'] = "O"
             else:
                 features['prev_label'] = labels[i - 1]
-            if bool(re.search('[A-Z]+[a-z]+$', current_word)):
-                features['first_uppercase'] = 1
 
-                pos = poses[i][1]
-                if pos == 'NNP':
-                    features['proper_noun'] = 1
-                    if i == 0 or i == length:
-                        features['first_last'] = 1
-                    if sentence[i + 1] == "'s":
-                        features['possession'] = 1
+            pos = poses[i][1]
+            if pos == 'NNP':
+                features['proper_noun'] = 1
+
+                if bool(re.search('[A-Z]+[a-z]+$', current_word)):
+                    features['first_uppercase'] = 1
+                else:
+                    features['first_uppercase'] = 0
+
+                if i + 1 < length and sentence[i + 1] == "'s":
+                    features['possession'] = 1
+                else:
+                    features['possession'] = 0
 
                 if self.m.search_first_name(current_word) or self.m.search_last_name(current_word):
                     features['dataset'] = 1
+                else:
+                    features['dataset'] = 0
+
+                if not (self.us.check(current_word) or self.au.check(current_word) or self.gb.check(current_word)
+                        or self.ca.check(current_word)):
+                    features['foreign'] = 1
+                else:
+                    features['foreign'] = 0
+            else:
+                features['proper_noun'] = 0
+                features['first_uppercase'] = 0
+                features['possession'] = 0
+                features['dataset'] = 0
+                features['foreign'] = 0
+
 
             honorifics = ['Mr', 'Ms', 'Miss', 'Mrs', 'Mx', 'Master', 'Sir', 'Madam', 'Dame', 'Lord', 'Lady', 'Dr',
-                          'Prof',
-                          'Br', 'Sr', 'Fr', 'Rev', 'Pr', 'Elder']
+                          'Prof', 'Br', 'Sr', 'Fr', 'Rev', 'Pr', 'Elder']
             if i > 0:
                 previous_word = sentence[i - 1].replace('.', '')
                 if previous_word in honorifics:
                     features['honorific'] = 1
+                else:
+                    features['honorific'] = 0
+            else:
+                features['honorific'] = 0
 
             fs.append(features)
             ls.append(labels[i])
+
         return True
 
     def feature_test(self, sentence):
@@ -65,27 +92,49 @@ class MEMM():
             features = {}
             current_word = sentence[i]
             features['has_(%s)' % current_word] = 1
-            if bool(re.search('[A-Z]+[a-z]+$', current_word)):
-                features['first_uppercase'] = 1
 
-                pos = poses[i][1]
-                if pos == 'NNP':
-                    features['proper_noun'] = 1
-                    if i == 0 or i == length:
-                        features['first_last'] = 1
-                    if i + 1 < length and sentence[i + 1] == "'s":
-                        features['possession'] = 1
+            pos = poses[i][1]
+            if pos == 'NNP':
+                features['proper_noun'] = 1
+
+                if bool(re.search('[A-Z]+[a-z]+$', current_word)):
+                    features['first_uppercase'] = 1
+                else:
+                    features['first_uppercase'] = 0
+
+                if i + 1 < length and sentence[i + 1] == "'s":
+                    features['possession'] = 1
+                else:
+                    features['possession'] = 0
 
                 if self.m.search_first_name(current_word) or self.m.search_last_name(current_word):
                     features['dataset'] = 1
+                else:
+                    features['dataset'] = 0
+
+                if not (self.us.check(current_word) or self.au.check(current_word) or self.gb.check(current_word)
+                        or self.ca.check(current_word)):
+                    features['foreign'] = 1
+                else:
+                    features['foreign'] = 0
+            else:
+                features['proper_noun'] = 0
+                features['first_uppercase'] = 0
+                features['possession'] = 0
+                features['dataset'] = 0
+                features['foreign'] = 0
+
 
             honorifics = ['Mr', 'Ms', 'Miss', 'Mrs', 'Mx', 'Master', 'Sir', 'Madam', 'Dame', 'Lord', 'Lady', 'Dr',
-                          'Prof',
-                          'Br', 'Sr', 'Fr', 'Rev', 'Pr', 'Elder']
+                          'Prof', 'Br', 'Sr', 'Fr', 'Rev', 'Pr', 'Elder']
             if i > 0:
                 previous_word = sentence[i - 1].replace('.', '')
                 if previous_word in honorifics:
                     features['honorific'] = 1
+                else:
+                    features['honorific'] = 0
+            else:
+                features['honorific'] = 0
 
             fs.append(features)
         return fs
