@@ -105,15 +105,6 @@ class MEMM:
             labels.append(doublet[1])
         return words, labels
 
-    def augment(self, sentences):
-        ss = []
-        for i in range(len(sentences)):
-            if i != 0:
-                ss.append(sentences[i].lower())
-            else:
-                ss.append(sentences[i])
-        return ss
-
     def get_sentences(self, words, labels):
         sentences = []
         labels_list = []
@@ -127,10 +118,6 @@ class MEMM:
                     temp_labels.append(labels[tmp])
                 sentences.append(sentence)
                 labels_list.append(temp_labels)
-
-                # ss = self.augment(sentence)
-                # sentences.append(ss)
-                # labels_list.append(temp_labels)
                 j = i + 1
 
         return sentences, labels_list
