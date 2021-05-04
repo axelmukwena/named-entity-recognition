@@ -9,12 +9,10 @@
 # --------------------------------------------------
 
 from nltk.classify.maxent import MaxentClassifier
-from sklearn.metrics import (accuracy_score, fbeta_score, precision_score,
-                             recall_score)
-import os
+from sklearn.metrics import (accuracy_score, fbeta_score, precision_score, recall_score)
 import pickle
 import re
-import nltk
+import enchant
 from tqdm import tqdm
 from nltk.tag.perceptron import PerceptronTagger
 from names_dataset import NameDatasetV1
@@ -29,6 +27,10 @@ class MEMM:
         self.classifier = None
         self.tagger = PerceptronTagger()
         self.m = NameDatasetV1()
+        self.us = enchant.Dict("en_US")
+        self.au = enchant.Dict("en_AU")
+        self.ca = enchant.Dict("en_CA")
+        self.gb = enchant.Dict("en_GB")
 
     def features(self, sentence, labels, fs, ls):
 
@@ -43,27 +45,49 @@ class MEMM:
                 features['prev_label'] = "O"
             else:
                 features['prev_label'] = labels[i - 1]
-            if bool(re.search('[A-Z]+[a-z]+$', current_word)):
-                features['first_uppercase'] = 1
 
-                pos = poses[i][1]
-                if pos == 'NNP':
-                    features['proper_noun'] = 1
-                    if i == 0 or i == length:
-                        features['first_last'] = 1
-                    if sentence[i + 1] == "'s":
-                        features['possession'] = 1
+            pos = poses[i][1]
+            if pos == 'NNP':
+                features['proper_noun'] = 1
+
+                if bool(re.search('[A-Z]+[a-z]+$', current_word)):
+                    features['first_uppercase'] = 1
+                else:
+                    features['first_uppercase'] = 0
+
+                if i + 1 < length and sentence[i + 1] == "'s":
+                    features['possession'] = 1
+                else:
+                    features['possession'] = 0
 
                 if self.m.search_first_name(current_word) or self.m.search_last_name(current_word):
                     features['dataset'] = 1
+                else:
+                    features['dataset'] = 0
+
+                if not (self.us.check(current_word) or self.au.check(current_word) or self.gb.check(current_word)
+                        or self.ca.check(current_word)):
+                    features['foreign'] = 1
+                else:
+                    features['foreign'] = 0
+            else:
+                features['proper_noun'] = 0
+                features['first_uppercase'] = 0
+                features['possession'] = 0
+                features['dataset'] = 0
+                features['foreign'] = 0
+
 
             honorifics = ['Mr', 'Ms', 'Miss', 'Mrs', 'Mx', 'Master', 'Sir', 'Madam', 'Dame', 'Lord', 'Lady', 'Dr',
-                          'Prof',
-                          'Br', 'Sr', 'Fr', 'Rev', 'Pr', 'Elder']
+                          'Prof', 'Br', 'Sr', 'Fr', 'Rev', 'Pr', 'Elder']
             if i > 0:
                 previous_word = sentence[i - 1].replace('.', '')
                 if previous_word in honorifics:
                     features['honorific'] = 1
+                else:
+                    features['honorific'] = 0
+            else:
+                features['honorific'] = 0
 
             fs.append(features)
             ls.append(labels[i])
@@ -138,7 +162,9 @@ class MEMM:
     def show_samples(self, bound):
         """Show some sample probability distributions.
         """
+        (m, n) = bound
         words, labels = self.load_data(self.dev_path)
+        words, labels = words[m:n], labels[m:n]
         sentences, labels_list = self.get_sentences(words, labels)
 
         features = []
@@ -146,7 +172,6 @@ class MEMM:
         for i in tqdm(range(len(sentences))):
             self.features(sentences[i], labels_list[i], features, labels)
 
-        (m, n) = bound
         pdists = self.classifier.prob_classify_many(features[m:n])
 
         print('  Words          P(PERSON)  P(O)\n' + '-' * 40)
@@ -169,4 +194,4 @@ class MEMM:
 # mem = MEMM()
 # mem.train()
 # mem.load_model()
-# mem.show_samples((0, 500))
+# mem.show_samples((0, 350))
