@@ -21,6 +21,8 @@ def get_features(sentence, fs, ws):
             features['prev_label'] = get_class(fs, i - 1)
 
         pos = poses[i][1]
+
+        features['pos'] = pos
         if pos == 'NNP':
             features['proper_noun'] = 1
 
@@ -66,22 +68,23 @@ def get_features(sentence, fs, ws):
 
 
 def get_class(features, i):
-    c = classifier.classify_many(features)[i]
+    cc = classifier.classify_many(features)[i]
     p = classifier.prob_classify_many(features)[i]
     a, b, = p.prob('PERSON'), p.prob('O')
-    return c
+    return cc
 
 
 def get_sentences():
     ss = []
     with open("../data/one", "r", encoding="utf-8") as file:
         data = file.read()
-        data = data.replace('\n', ' ')
+        data = data.replace('\n', '')
         data = data.strip().split(".")
         for sentence in data:
-            sentence = sentence + "."
-            sentence = nltk.tokenize.word_tokenize(sentence)
-            ss.append(sentence)
+            if sentence != "":
+                sentence = sentence + "."
+                sentence = nltk.tokenize.word_tokenize(sentence)
+                ss.append(sentence)
     return ss
 
 

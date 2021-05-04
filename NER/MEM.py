@@ -47,6 +47,7 @@ class MEMM:
                 features['prev_label'] = labels[i - 1]
 
             pos = poses[i][1]
+            features['pos'] = pos
             if pos == 'NNP':
                 features['proper_noun'] = 1
 
@@ -77,7 +78,6 @@ class MEMM:
                 features['dataset'] = 0
                 features['foreign'] = 0
 
-
             honorifics = ['Mr', 'Ms', 'Miss', 'Mrs', 'Mx', 'Master', 'Sir', 'Madam', 'Dame', 'Lord', 'Lady', 'Dr',
                           'Prof', 'Br', 'Sr', 'Fr', 'Rev', 'Pr', 'Elder']
             if i > 0:
@@ -105,6 +105,15 @@ class MEMM:
             labels.append(doublet[1])
         return words, labels
 
+    def augment(self, sentences):
+        ss = []
+        for i in range(len(sentences)):
+            if i != 0:
+                ss.append(sentences[i].lower())
+            else:
+                ss.append(sentences[i])
+        return ss
+
     def get_sentences(self, words, labels):
         sentences = []
         labels_list = []
@@ -118,7 +127,12 @@ class MEMM:
                     temp_labels.append(labels[tmp])
                 sentences.append(sentence)
                 labels_list.append(temp_labels)
+
+                # ss = self.augment(sentence)
+                # sentences.append(ss)
+                # labels_list.append(temp_labels)
                 j = i + 1
+
         return sentences, labels_list
 
     def train(self):
