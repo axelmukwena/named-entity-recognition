@@ -2,3 +2,4 @@
 .idea/vcs.xml
 /data
 /venv
+__pycache__
