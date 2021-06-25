@@ -1,13 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding:utf-8 -*-
-# --------------------------------------------------
-# Description:
-# --------------------------------------------------
-# Author: Konfido <konfido.du@outlook.com>
-# Created Date : April 4th 2020, 17:45:05
-# Last Modified: April 4th 2020, 17:45:05
-# --------------------------------------------------
-
 from nltk.classify.maxent import MaxentClassifier
 from sklearn.metrics import (accuracy_score, fbeta_score, precision_score, recall_score)
 import pickle
@@ -15,20 +5,18 @@ import re
 import enchant
 from tqdm import tqdm
 from nltk.tag.perceptron import PerceptronTagger
-from names_dataset import NameDataset
 from names_dataset import NameDatasetV1
 
 
-class MEMM:
+class Mem:
     def __init__(self):
-        self.train_path = "../data/train"
-        self.dev_path = "../data/dev"
+        self.train_path = "data/train"
+        self.dev_path = "data/dev"
         self.beta = 0
         self.max_iter = 0
         self.classifier = None
         self.tagger = PerceptronTagger()
-        self.m = NameDataset()
-        self.n = NameDatasetV1()
+        self.m = NameDatasetV1()
         self.us = enchant.Dict("en_US")
         self.au = enchant.Dict("en_AU")
         self.ca = enchant.Dict("en_CA")
@@ -63,10 +51,6 @@ class MEMM:
                 else:
                     features['possession'] = 0
 
-                o = self.m.search_first_name(current_word.lower())
-                p = self.m.search_last_name(current_word.lower())
-                q = self.n.search_first_name(current_word.lower())
-                r = self.n.search_last_name(current_word.lower())
                 if self.m.search_first_name(current_word) or self.m.search_last_name(current_word):
                     features['dataset'] = 1
                 else:
@@ -190,15 +174,10 @@ class MEMM:
             print(fmt % (word, pdist.prob('PERSON'), pdist.prob('O')))
 
     def dump_model(self):
-        with open('../model.pkl', 'wb') as f:
+        with open('model.pkl', 'wb') as f:
             pickle.dump(self.classifier, f)
 
     def load_model(self):
-        with open('../model.pkl', 'rb') as f:
+        with open('model.pkl', 'rb') as f:
             self.classifier = pickle.load(f)
 
-
-mem = MEMM()
-mem.train()
-# mem.load_model()
-# mem.show_samples((0, 350))

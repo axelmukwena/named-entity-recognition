@@ -1,19 +1,9 @@
-#!/usr/bin/env python3
-# -*- coding:utf-8 -*-
-# --------------------------------------------------
-# Description:
-# --------------------------------------------------
-# Author: Du-Haihua <mb75481@um.edu.mo>
-# Created Date : April 3rd 2020, 12:05:49
-# Last Modified: April 4th 2020, 10:59:35
-# --------------------------------------------------
-
 import argparse
-from MEM import MEMM
+from mem import Mem
 
 
 def main():
-    classifier = MEMM()
+    classifier = Mem()
 
     if arg.train:
         classifier.max_iter = MAX_ITER
