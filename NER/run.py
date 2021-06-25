@@ -13,7 +13,6 @@ from MEM import MEMM
 
 
 def main():
-
     classifier = MEMM()
 
     if arg.train:
@@ -36,17 +35,16 @@ def main():
 
 
 if __name__ == '__main__':
-
     parser = argparse.ArgumentParser()
     parser.add_argument('-t', '--train', nargs='?', const=True, default=False)
     parser.add_argument('-d', '--dev', nargs='?', const=True, default=False)
     parser.add_argument('-s', '--show', nargs='?', const=True, default=False)
     arg = parser.parse_args()
 
-    #====== Customization ======
+    # ====== Customization ======
     BETA = 0.5
     MAX_ITER = 20
     BOUND = (0, 350)
-    #==========================
+    # ==========================
 
     main()

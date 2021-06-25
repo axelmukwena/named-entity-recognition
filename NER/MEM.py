@@ -15,6 +15,7 @@ import re
 import enchant
 from tqdm import tqdm
 from nltk.tag.perceptron import PerceptronTagger
+from names_dataset import NameDataset
 from names_dataset import NameDatasetV1
 
 
@@ -26,7 +27,8 @@ class MEMM:
         self.max_iter = 0
         self.classifier = None
         self.tagger = PerceptronTagger()
-        self.m = NameDatasetV1()
+        self.m = NameDataset()
+        self.n = NameDatasetV1()
         self.us = enchant.Dict("en_US")
         self.au = enchant.Dict("en_AU")
         self.ca = enchant.Dict("en_CA")
@@ -61,6 +63,10 @@ class MEMM:
                 else:
                     features['possession'] = 0
 
+                o = self.m.search_first_name(current_word.lower())
+                p = self.m.search_last_name(current_word.lower())
+                q = self.n.search_first_name(current_word.lower())
+                r = self.n.search_last_name(current_word.lower())
                 if self.m.search_first_name(current_word) or self.m.search_last_name(current_word):
                     features['dataset'] = 1
                 else:
@@ -192,7 +198,7 @@ class MEMM:
             self.classifier = pickle.load(f)
 
 
-# mem = MEMM()
-# mem.train()
+mem = MEMM()
+mem.train()
 # mem.load_model()
 # mem.show_samples((0, 350))
