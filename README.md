@@ -1,8 +1,4 @@
-University of Macau\
-Due date: 04 May, 2021
-
-Ma Rui & Axel Mukwena
-
+Checkout the Flask API to deploy the model https://github.com/axelmukwena/named-entity-recognition-api
 
 # Person Name ('Named Entity') Recognition
 
